@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Models;
+
+use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class TourPlace extends Model
+{
+    /** @use HasFactory<\Database\Factories\TourPlaceFactory> */
+    use HasFactory, Sluggable;
+
+    protected $fillable = [
+        'user_id',
+        'business_sub_category_id',
+        'business_name',
+        'slug',
+        'owner_name',
+        'owner_email',
+        'phone',
+        'instagram_link',
+        'facebook_link',
+        'address',
+        'latitude',
+        'longitude',
+        'description',
+        'ticket_price',
+        'facility',
+        'status',
+    ];
+
+    protected $casts = [
+        'facility' => 'array',
+    ];
+
+    /**
+     * Return the sluggable configuration array for this model.
+     *
+     * @return array
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title'
+            ]
+        ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(BusinessSubCategory::class, 'business_sub_category_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(TourImage::class);
+    }
+
+    public function operatingHours()
+    {
+        return $this->hasMany(TourOperatingHour::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(TourReview::class);
+    }
+}
