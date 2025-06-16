@@ -23,13 +23,12 @@ return new class extends Migration
             $table->string('instagram_link')->nullable();
             $table->string('facebook_link')->nullable();
             $table->text('address');
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
+            $table->text('gmaps_link');
             $table->text('description');
             $table->enum('types_of_food', ['Halal', 'Non Halal']);
             $table->string('menu_pdf');
             $table->json('facility');
-            $table->enum('status', ['Menunggu Persetujuan', 'Ditolak', 'Diterima']);
+            $table->enum('status', ['Menunggu Persetujuan', 'Ditolak', 'Diterima'])->default('Menunggu Persetujuan');
             $table->timestamps();
         });
 
@@ -55,6 +54,8 @@ return new class extends Migration
             $table->tinyInteger('rating');
             $table->text('comment');
             $table->timestamps();
+
+            $table->unique(['user_id', 'culinary_place_id']);
         });
     }
 

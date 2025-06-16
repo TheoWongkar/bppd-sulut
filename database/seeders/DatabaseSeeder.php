@@ -12,11 +12,13 @@ use App\Models\TourReview;
 use App\Models\CulinaryImage;
 use App\Models\CulinaryPlace;
 use App\Models\CulinaryReview;
-use Illuminate\Database\Seeder;
 use App\Models\BusinessCategory;
 use App\Models\TourOperatingHour;
 use App\Models\BusinessSubCategory;
 use App\Models\CulinaryOperatingHour;
+use App\Models\EventParticipant;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,46 +27,54 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Users
+        // Buat 10 user, set user pertama sebagai admin
         User::factory(10)->make()->tap(function ($users) {
             $users[0]->name = 'admin';
             $users[0]->email = 'admin@bppd.com';
             $users[0]->role = 'Admin';
         })->each->save();
 
-        // Array Kategori dan Subkategori
+        // Daftar kategori dan subkategori
         $categories = [
             'Kuliner' => ['Makanan', 'Minuman', 'Snack'],
             'Tempat Wisata' => ['Destinasi', 'Desa Pariwisata', 'Gunung', 'Pulau', 'Pantai'],
             'Event' => ['Seni', 'Pameran', 'Bazar'],
         ];
 
-        // Looping Kategori dan Subkategori
+        // Menyimpan subkategori berdasarkan kategori
+        $subCategoriesMap = [];
+
         foreach ($categories as $categoryName => $subCategories) {
             $category = BusinessCategory::factory()->create([
-                'name' => $categoryName
+                'name' => $categoryName,
+                'slug' => Str::slug($categoryName)
             ]);
 
             foreach ($subCategories as $subCategoryName) {
-                BusinessSubCategory::factory()->create([
+                $subCategory = BusinessSubCategory::factory()->create([
                     'business_category_id' => $category->id,
-                    'name' => $subCategoryName
+                    'name' => $subCategoryName,
+                    'slug' => Str::slug($subCategoryName)
                 ]);
+
+                $subCategoriesMap[$categoryName][] = $subCategory;
             }
         }
 
-        // Hari
+        $users = \App\Models\User::pluck('id')->toArray(); // Ambil semua user ID
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
-        // Tempat Kuliner
-        CulinaryPlace::factory()->count(10)->create()->each(function ($place) use ($days) {
+        // Seed data kuliner
+        $kulinerSubCategories = $subCategoriesMap['Kuliner'];
 
-            // Buat 5 gambar untuk setiap tempat
+        CulinaryPlace::factory()->count(10)->create()->each(function ($place) use ($days, $kulinerSubCategories, $users) {
+            $subCategory = $kulinerSubCategories[array_rand($kulinerSubCategories)];
+            $place->update(['business_sub_category_id' => $subCategory->id]);
+
             CulinaryImage::factory()->count(5)->create([
                 'culinary_place_id' => $place->id,
             ]);
 
-            // Buat Jam operasional Senin - Minggu
             foreach ($days as $day) {
                 CulinaryOperatingHour::factory()->create([
                     'culinary_place_id' => $place->id,
@@ -74,21 +84,27 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // Optional: Buat review 1-3 untuk setiap tempat
-            CulinaryReview::factory()->count(rand(1, 3))->create([
-                'culinary_place_id' => $place->id,
-            ]);
+            // Assign review ke user acak tanpa duplikat per tempat
+            $reviewUserIds = collect($users)->shuffle()->take(rand(1, 3));
+            foreach ($reviewUserIds as $userId) {
+                CulinaryReview::factory()->create([
+                    'culinary_place_id' => $place->id,
+                    'user_id' => $userId,
+                ]);
+            }
         });
 
-        // Tempat Wisata
-        TourPlace::factory()->count(10)->create()->each(function ($place) use ($days) {
+        // Seed data tempat wisata
+        $wisataSubCategories = $subCategoriesMap['Tempat Wisata'];
 
-            // Buat 5 gambar untuk setiap tempat
+        TourPlace::factory()->count(10)->create()->each(function ($place) use ($days, $wisataSubCategories, $users) {
+            $subCategory = $wisataSubCategories[array_rand($wisataSubCategories)];
+            $place->update(['business_sub_category_id' => $subCategory->id]);
+
             TourImage::factory()->count(5)->create([
                 'tour_place_id' => $place->id,
             ]);
 
-            // Buat jam operasional Senin - Minggu
             foreach ($days as $day) {
                 TourOperatingHour::factory()->create([
                     'tour_place_id' => $place->id,
@@ -98,19 +114,35 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // Optional: Buat review 1-3 untuk setiap tempat
-            TourReview::factory()->count(rand(1, 3))->create([
-                'tour_place_id' => $place->id,
-            ]);
+            // Review user acak tanpa duplikat
+            $reviewUserIds = collect($users)->shuffle()->take(rand(1, 3));
+            foreach ($reviewUserIds as $userId) {
+                TourReview::factory()->create([
+                    'tour_place_id' => $place->id,
+                    'user_id' => $userId,
+                ]);
+            }
         });
 
-        // Tempat Kegiatan
-        EventPlace::factory()->count(10)->create()->each(function ($place) {
+        // Seed data event
+        $eventSubCategories = $subCategoriesMap['Event'];
 
-            // Buat 5 gambar untuk setiap tempat
+        EventPlace::factory()->count(10)->create()->each(function ($place) use ($eventSubCategories, $users) {
+            $subCategory = $eventSubCategories[array_rand($eventSubCategories)];
+            $place->update(['business_sub_category_id' => $subCategory->id]);
+
             EventImage::factory()->count(5)->create([
                 'event_place_id' => $place->id,
             ]);
+
+            // Setidaknya satu peserta event, dari user yang belum pernah daftar di event ini
+            $participantUserIds = collect($users)->shuffle()->take(rand(1, 3));
+            foreach ($participantUserIds as $userId) {
+                EventParticipant::factory()->create([
+                    'event_place_id' => $place->id,
+                    'user_id' => $userId,
+                ]);
+            }
         });
     }
 }

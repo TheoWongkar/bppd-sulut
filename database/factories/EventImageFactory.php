@@ -19,7 +19,7 @@ class EventImageFactory extends Factory
     {
         return [
             'event_place_id' => EventPlace::inRandomOrder()->first()->id,
-            'image' => 'https://picsum.photos/300/200',
+            'image' => 'home-banner.jpg',
         ];
     }
 }

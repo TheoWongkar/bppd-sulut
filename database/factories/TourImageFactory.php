@@ -19,7 +19,7 @@ class TourImageFactory extends Factory
     {
         return [
             'tour_place_id' => TourPlace::inRandomOrder()->first()->id,
-            'image' => 'https://picsum.photos/300/200',
+            'image' => 'home-banner.jpg',
         ];
     }
 }

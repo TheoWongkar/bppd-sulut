@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class EventPlace extends Model
 {
@@ -22,17 +23,14 @@ class EventPlace extends Model
         'instagram_link',
         'facebook_link',
         'address',
-        'latitude',
-        'longitude',
+        'gmaps_link',
         'description',
         'ticket_price',
-        'facility',
         'start_time',
         'end_time',
     ];
 
     protected $casts = [
-        'facility' => 'array',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
@@ -64,5 +62,40 @@ class EventPlace extends Model
     public function images()
     {
         return $this->hasMany(EventImage::class);
+    }
+
+    public function firstImage()
+    {
+        return $this->hasOne(EventImage::class)->oldest();
+    }
+
+    public function participants()
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
+
+    public function getStatusAttribute()
+    {
+        $now = Carbon::now();
+        $start = Carbon::parse($this->start_time);
+        $end = Carbon::parse($this->end_time);
+
+        if ($now->lt($start)) {
+            $diff = $now->diffForHumans($start, true);
+            return [
+                'text' => 'Dimulai dalam ' . $diff,
+                'type' => 'upcoming',
+            ];
+        } elseif ($now->between($start, $end)) {
+            return [
+                'text' => 'Sedang berlangsung',
+                'type' => 'ongoing',
+            ];
+        } else {
+            return [
+                'text' => 'Sudah berakhir',
+                'type' => 'ended',
+            ];
+        }
     }
 }

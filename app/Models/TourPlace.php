@@ -22,8 +22,7 @@ class TourPlace extends Model
         'instagram_link',
         'facebook_link',
         'address',
-        'latitude',
-        'longitude',
+        'gmaps_link',
         'description',
         'ticket_price',
         'facility',
@@ -61,6 +60,11 @@ class TourPlace extends Model
     public function images()
     {
         return $this->hasMany(TourImage::class);
+    }
+
+    public function firstImage()
+    {
+        return $this->hasOne(TourImage::class)->oldest();
     }
 
     public function operatingHours()

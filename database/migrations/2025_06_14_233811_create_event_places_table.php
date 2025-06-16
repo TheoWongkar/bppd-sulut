@@ -23,11 +23,9 @@ return new class extends Migration
             $table->string('instagram_link')->nullable();
             $table->string('facebook_link')->nullable();
             $table->text('address');
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
+            $table->text('gmaps_link');
             $table->text('description');
             $table->decimal('ticket_price', 10, 2);
-            $table->json('facility');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->timestamps();
@@ -39,6 +37,24 @@ return new class extends Migration
             $table->string('image');
             $table->timestamps();
         });
+
+        Schema::create('event_participants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('event_place_id')->constrained()->onDelete('cascade');
+            $table->string('stage_name');
+            $table->string('portfolio_pdf');
+            $table->string('field');
+            $table->text('description');
+            $table->string('email');
+            $table->string('phone');
+            $table->string('instagram_link')->nullable();
+            $table->string('facebook_link')->nullable();
+            $table->enum('status', ['Menunggu Persetujuan', 'Ditolak', 'Diterima'])->default('Menunggu Persetujuan');
+            $table->timestamps();
+
+            $table->unique(['user_id', 'event_place_id']);
+        });
     }
 
     /**
@@ -48,5 +64,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('event_places');
         Schema::dropIfExists('event_images');
+        Schema::dropIfExists('event_participants');
     }
 };

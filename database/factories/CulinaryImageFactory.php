@@ -19,7 +19,7 @@ class CulinaryImageFactory extends Factory
     {
         return [
             'culinary_place_id' => CulinaryPlace::inRandomOrder()->first()->id,
-            'image' => 'https://picsum.photos/300/200',
+            'image' => 'home-banner.jpg',
         ];
     }
 }

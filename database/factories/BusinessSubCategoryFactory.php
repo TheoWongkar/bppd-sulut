@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Illuminate\Support\Str;
 use App\Models\BusinessCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,10 +18,12 @@ class BusinessSubCategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->name();
+
         return [
             'business_category_id' => BusinessCategory::inRandomOrder()->first()->id,
-            'name' => fake()->name(),
-            'slug' => fake()->slug(),
+            'name' => $name,
+            'slug' => Str::slug($name),
         ];
     }
 }

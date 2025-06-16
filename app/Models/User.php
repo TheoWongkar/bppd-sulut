@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TourReview::class);
     }
+
+    public function eventParticipants()
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
 }
