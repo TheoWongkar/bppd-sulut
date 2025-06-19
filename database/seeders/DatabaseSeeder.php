@@ -61,13 +61,13 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $users = \App\Models\User::pluck('id')->toArray(); // Ambil semua user ID
+        $users = User::pluck('id')->toArray(); // Ambil semua user ID
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
         // Seed data kuliner
         $kulinerSubCategories = $subCategoriesMap['Kuliner'];
 
-        CulinaryPlace::factory()->count(10)->create()->each(function ($place) use ($days, $kulinerSubCategories, $users) {
+        CulinaryPlace::factory()->count(100)->create()->each(function ($place) use ($days, $kulinerSubCategories, $users) {
             $subCategory = $kulinerSubCategories[array_rand($kulinerSubCategories)];
             $place->update(['business_sub_category_id' => $subCategory->id]);
 
@@ -97,7 +97,7 @@ class DatabaseSeeder extends Seeder
         // Seed data tempat wisata
         $wisataSubCategories = $subCategoriesMap['Tempat Wisata'];
 
-        TourPlace::factory()->count(10)->create()->each(function ($place) use ($days, $wisataSubCategories, $users) {
+        TourPlace::factory()->count(100)->create()->each(function ($place) use ($days, $wisataSubCategories, $users) {
             $subCategory = $wisataSubCategories[array_rand($wisataSubCategories)];
             $place->update(['business_sub_category_id' => $subCategory->id]);
 
@@ -127,7 +127,7 @@ class DatabaseSeeder extends Seeder
         // Seed data event
         $eventSubCategories = $subCategoriesMap['Event'];
 
-        EventPlace::factory()->count(10)->create()->each(function ($place) use ($eventSubCategories, $users) {
+        EventPlace::factory()->count(100)->create()->each(function ($place) use ($eventSubCategories, $users) {
             $subCategory = $eventSubCategories[array_rand($eventSubCategories)];
             $place->update(['business_sub_category_id' => $subCategory->id]);
 

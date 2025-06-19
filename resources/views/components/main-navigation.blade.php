@@ -19,13 +19,57 @@
             </div>
 
             <!-- Menu Desktop -->
-            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
-                <a href="{{ route('home') }}" class="hover:text-[#10B981] transition-colors">Beranda</a>
-                <a href="#" class="hover:text-[#10B981] transition-colors">Telusuri & Pesan</a>
-                <a href="#" class="hover:text-[#10B981] transition-colors">Kuliner</a>
-                <a href="#" class="hover:text-[#10B981] transition-colors">Tentang Kami</a>
-                <a href="#" class="hover:text-[#10B981] transition-colors">Login</a>
-            </div>
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="{{ route('home') }}"
+                    class="transition-colors hover:text-[#10B981] {{ Route::is('home') || Route::is('eventplace.*') ? 'text-[#10B981] font-bold' : '' }}">
+                    Beranda
+                </a>
+                <a href="{{ route('tourplace.index') }}"
+                    class="transition-colors hover:text-[#10B981] {{ Route::is('tourplace.*') ? 'text-[#10B981] font-bold' : '' }}">Telusuri
+                </a>
+                <a href="{{ route('culinaryplace.index') }}"
+                    class="transition-colors hover:text-[#10B981] {{ Route::is('culinaryplace.*') ? 'text-[#10B981] font-bold' : '' }}">Kuliner</a>
+                <a href="{{ route('about') }}"
+                    class="transition-colors hover:text-[#10B981] {{ Route::is('about') ? 'text-[#10B981] font-bold' : '' }}">Tentang
+                    Kami</a>
+                @auth
+                    <div x-cloak x-data="{ open: false }" class="relative">
+                        <!-- Tombol Avatar -->
+                        <button @click="open = !open" class="flex items-center gap-1 focus:outline-none">
+                            <!-- Avatar -->
+                            <div class="w-11 h-11 rounded-full overflow-hidden border border-gray-300">
+                                <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('img/profile-placeholder.webp') }}"
+                                    alt="Avatar" class="object-cover w-full h-full">
+                            </div>
+                            <!-- Icon panah -->
+                            <x-icons.arrow-down class="w-4 h-4 text-gray-600" />
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" @click.outside="open = false" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profil Saya
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Usaha Saya
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-100 hover:text-red-600">
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}"
+                        class="transition-colors hover:text-[#10B981] {{ Route::is('login') ? 'text-[#10B981] font-bold' : '' }}">
+                        Login
+                    </a>
+                @endauth
+            </nav>
 
             <!-- Tombol Hamburger (Mobile) -->
             <div class="md:hidden">
@@ -63,11 +107,46 @@
 
         <!-- Menu Sidebar -->
         <nav class="mt-8 flex flex-col space-y-4 text-sm font-medium">
-            <a href="{{ route('home') }}" class="hover:text-[#10B981] transition-colors">Beranda</a>
-            <a href="#" class="hover:text-[#10B981] transition-colors">Telusuri & Pesan</a>
-            <a href="#" class="hover:text-[#10B981] transition-colors">Kuliner</a>
-            <a href="#" class="hover:text-[#10B981] transition-colors">Tentang Kami</a>
-            <a href="#" class="hover:text-[#10B981] transition-colors">Login</a>
+            <a href="{{ route('home') }}"
+                class="transition-colors hover:text-[#10B981] {{ Route::is('home') || Route::is('eventplace.*') ? 'text-[#10B981] font-semibold' : '' }}">Beranda</a>
+            <a href="{{ route('tourplace.index') }}"
+                class="transition-colors hover:text-[#10B981] {{ Route::is('tourplace.*') ? 'text-[#10B981] font-semibold' : '' }}">Telusuri
+                & Pesan</a>
+            <a href="{{ route('culinaryplace.index') }}"
+                class="transition-colors hover:text-[#10B981] {{ Route::is('culinaryplace.*') ? 'text-[#10B981] font-semibold' : '' }}">Kuliner</a>
+            <a href="{{ route('about') }}"
+                class="transition-colors hover:text-[#10B981] {{ Route::is('about') ? 'text-[#10B981] font-semibold' : '' }}">Tentang
+                Kami</a>
+
+            @auth
+                <div class="border-t pt-4">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
+                            <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('img/profile-placeholder.webp') }}"
+                                alt="Avatar" class="object-cover w-full h-full">
+                        </div>
+                        <div class="text-sm font-semibold text-[#486284]">
+                            {{ auth()->user()->name }}
+                        </div>
+                    </div>
+
+                    <a href="#" class="block px-2 py-1 text-gray-700 hover:text-[#10B981] hover:bg-gray-100 rounded">
+                        Profil Saya
+                    </a>
+                    <a href="#" class="block px-2 py-1 text-gray-700 hover:text-[#10B981] hover:bg-gray-100 rounded">
+                        Usaha Saya
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-2 py-1 text-red-600 hover:bg-red-100 rounded">
+                            Keluar
+                        </button>
+                    </form>
+                </div>
+            @else
+                <a href="{{ route('login') }}"
+                    class="transition-colors hover:text-[#10B981] {{ Route::is('login') ? 'text-[#10B981] font-semibold' : '' }}">Login</a>
+            @endauth
         </nav>
     </div>
 </nav>

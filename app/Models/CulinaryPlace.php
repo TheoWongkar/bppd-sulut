@@ -65,7 +65,7 @@ class CulinaryPlace extends Model
 
     public function firstImage()
     {
-        return $this->hasOne(TourImage::class)->oldest();
+        return $this->hasOne(CulinaryImage::class)->oldest();
     }
 
     public function operatingHours()

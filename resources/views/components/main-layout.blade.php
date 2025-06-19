@@ -40,7 +40,7 @@
     </style>
 </head>
 
-<body class="font-jakarta antialiased">
+<body class="font-jakarta antialiased bg-gray-100">
 
     <div class="flex flex-col min-h-screen">
         <!-- Navigasi -->
